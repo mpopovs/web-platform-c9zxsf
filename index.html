@@ -1,0 +1,65 @@
+
+<html>
+<head>
+    <title>Device Orientation Test</title>
+</head>
+<body>
+    <h1>Device Orientation</h1>
+    <p>Alpha: <span id="alpha"></span></p>
+    <p>Beta: <span id="beta"></span></p>
+    <p>Gamma: <span id="gamma"></span></p>
+
+    <script>
+        if (window.DeviceOrientationEvent) {
+            // Request permission for device sensors
+            if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+                DeviceOrientationEvent.requestPermission()
+                    .then(permissionState => {
+                        if (permissionState === 'granted') {
+                            startDeviceOrientation();
+                        } else {
+                            document.body.innerHTML = 'Permission to access device sensors denied.';
+                        }
+                    })
+                    .catch(console.error);
+            } else {
+                startDeviceOrientation();
+            }
+        } else {
+            document.body.innerHTML = "Sorry, your browser doesn't support Device Orientation";
+        }
+
+        function startDeviceOrientation() {
+            var isSoundPlaying = false; // Flag to prevent overlapping sound playback
+
+            window.addEventListener("deviceorientation", function (event) {
+                document.getElementById("alpha").innerHTML = event.alpha.toFixed(2);
+                document.getElementById("beta").innerHTML = event.beta.toFixed(2);
+
+                // Normalize gamma value
+                var normalizedGamma = Math.round(event.gamma);
+                document.getElementById("gamma").innerHTML = normalizedGamma;
+
+                // Play sound if gamma is between -60 and -80 or between 60 and 80
+                if ((normalizedGamma >= -80 && normalizedGamma <= -60) || (normalizedGamma >= 60 && normalizedGamma <= 80)) {
+                    if (!isSoundPlaying) {
+                        isSoundPlaying = true;
+                        playSound();
+                    }
+                } else {
+                    isSoundPlaying = false;
+                }
+            }, true);
+        }
+
+        function playSound() {
+            var audio = new Audio('https://cdn.glitch.global/0862a4b6-0ca2-44da-9074-b9216a842417/sss.mp3?v=1684599673108');
+            audio.play().then(() => {
+              console.log('Sound played successfully');
+            }).catch(error => {
+              console.log('Failed to play the sound', error);
+            });
+        }
+    </script>
+</body>
+</html>
